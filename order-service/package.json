@@ -15,6 +15,7 @@
   "type": "commonjs",
   "dependencies": {
     "amqplib": "^1.0.2",
+    "dotenv": "^17.3.1",
     "express": "^5.2.1",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.3.3",
@@ -29,7 +30,7 @@
     "jest": "^30.3.0",
     "ts-jest": "^29.4.6",
     "ts-node-dev": "^2.0.0",
-    "typescript": "^6.0.2"
+    "typescript": "^5.9.3"
   },
   "jest": {
     "preset": "ts-jest",
