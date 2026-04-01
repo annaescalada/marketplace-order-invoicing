@@ -1,17 +1,20 @@
+import { z } from "zod";
 import { randomUUID } from "crypto";
 import { Order, OrderStatus } from "../../domain/entities/Order";
 import { OrderRepository } from "../ports/OrderRepository";
 
-interface CreateOrderDto {
-  price: number;
-  quantity: number;
-  productId: string;
-  customerId: string;
-  sellerId: string;
-}
+export const CreateOrderSchema = z.object({
+  price: z.number(),
+  quantity: z.number(),
+  productId: z.string(),
+  customerId: z.string(),
+  sellerId: z.string(),
+});
+
+export type CreateOrderDto = z.infer<typeof CreateOrderSchema>;
 
 export class CreateOrder {
-  constructor(private readonly orderRepository: OrderRepository) {}
+  constructor(private readonly orderRepository: OrderRepository) { }
 
   async execute(input: CreateOrderDto): Promise<Order> {
     const order = new Order({

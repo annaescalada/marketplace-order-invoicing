@@ -1,7 +1,15 @@
+import { z } from "zod";
 import { randomUUID } from "crypto";
 import { OrderStatus } from "../../domain/entities/Order";
 import { OrderRepository } from "../ports/OrderRepository";
 import { OutboxRepository } from "../ports/OutboxRepository";
+
+export const UpdateOrderStatusSchema = z.object({
+    orderId: z.string(),
+    status: z.enum(OrderStatus),
+});
+
+export type UpdateOrderStatusDto = z.infer<typeof UpdateOrderStatusSchema>;
 
 export class UpdateOrderStatus {
     constructor(
@@ -9,7 +17,8 @@ export class UpdateOrderStatus {
         private readonly outboxRepository: OutboxRepository
     ) { }
 
-    async execute(orderId: string, newStatus: OrderStatus) {
+    async execute(input: UpdateOrderStatusDto) {
+        const { orderId, status: newStatus } = input;
         const order = await this.orderRepository.findById(orderId);
         if (!order) throw new Error("Order not found");
 

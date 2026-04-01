@@ -24,7 +24,7 @@ describe("UpdateOrderStatus", () => {
     const order = makeOrder();
     mockOrderRepository.findById.mockResolvedValue(order);
     const useCase = new UpdateOrderStatus(mockOrderRepository, mockOutboxRepository);
-    const result = await useCase.execute("123", OrderStatus.Accepted);
+    const result = await useCase.execute({ orderId: "123", status: OrderStatus.Accepted });
     expect(result.status).toBe(OrderStatus.Accepted);
     expect(mockOrderRepository.update).toHaveBeenCalledWith(order);
     expect(mockOutboxRepository.save).not.toHaveBeenCalled();
@@ -34,7 +34,7 @@ describe("UpdateOrderStatus", () => {
     const order = makeOrder({ status: OrderStatus.Processing });
     mockOrderRepository.findById.mockResolvedValue(order);
     const useCase = new UpdateOrderStatus(mockOrderRepository, mockOutboxRepository);
-    await useCase.execute("123", OrderStatus.Shipped);
+    await useCase.execute({ orderId: "123", status: OrderStatus.Shipped });
     expect(mockOutboxRepository.save).toHaveBeenCalledWith(
       expect.objectContaining({ type: "order.shipped", aggregateId: "123" })
     );
@@ -43,13 +43,13 @@ describe("UpdateOrderStatus", () => {
   it("should throw if order not found", async () => {
     mockOrderRepository.findById.mockResolvedValue(null);
     const useCase = new UpdateOrderStatus(mockOrderRepository, mockOutboxRepository);
-    await expect(useCase.execute("999", OrderStatus.Accepted)).rejects.toThrow("Order not found");
+    await expect(useCase.execute({ orderId: "999", status: OrderStatus.Accepted })).rejects.toThrow("Order not found");
   });
 
   it("should throw on invalid transition", async () => {
     const order = makeOrder();
     mockOrderRepository.findById.mockResolvedValue(order);
     const useCase = new UpdateOrderStatus(mockOrderRepository, mockOutboxRepository);
-    await expect(useCase.execute("123", OrderStatus.Shipped)).rejects.toThrow();
+    await expect(useCase.execute({ orderId: "123", status: OrderStatus.Shipped })).rejects.toThrow();
   });
 });
