@@ -32,7 +32,13 @@ export class OrderController {
     }
 
     async list(req: Request, res: Response): Promise<void> {
-        const filters = ListOrdersSchema.parse(req.query);
+        const roleFilters: Record<string, object> = {
+            seller: { sellerId: req.user!.sub },
+            customer: { customerId: req.user!.sub },
+            admin: {}, // Admin can see all orders
+        };
+        
+        const filters = roleFilters[req.user!.role];
         const orders = await this.listOrders.execute(filters);
         res.json(orders.map((o) => o.toObject()));
     }

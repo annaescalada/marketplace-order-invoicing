@@ -83,8 +83,6 @@ When an order reaches `Shipped` status:
 
 Simulates an external identity provider (Auth0, Cognito). Each service only verifies JWTs — never issues them. Tokens carry `sub` (user ID) and `role`.
 
-**Business decision:** a user has a single role per token, `seller` or `customer`. A person can hold both roles but not simultaneously. The token represents the context in which the user operates in that session.
-
 ## Local Development
 
 ### Prerequisites
@@ -112,6 +110,14 @@ docker compose up -d --build
 cd order-service && npm test
 cd invoice-service && npm test
 ```
+
+## Business Decisions
+
+### Single role per token
+A user has a single role per token — `seller` or `customer`. A person can hold both roles but not simultaneously. The token represents the context in which the user operates in that session. This simplifies authorization logic and reflects real marketplace which separate buyer and seller modes explicitly.
+
+### Role-based order filtering
+`GET /orders` is accessible to both sellers and customers. Filters are derived from the JWT token — a seller sees only their orders, a customer sees only their own. The filter map is role-keyed and extensible: adding a new role (e.g. `admin` with no filter to see all orders) requires a single entry with no changes to the use case or domain.
 
 ## Architecture Decisions
 
