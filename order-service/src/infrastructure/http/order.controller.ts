@@ -14,7 +14,13 @@ export class OrderController {
     ) { }
 
     async create(req: Request, res: Response): Promise<void> {
-        const input = CreateOrderSchema.parse(req.body);
+        const input = CreateOrderSchema.parse({
+            price: req.body.price,
+            quantity: req.body.quantity,
+            productId: req.body.productId,
+            customerId: req.user?.sub,
+            sellerId: req.body.sellerId,
+        });
         const order = await this.createOrder.execute(input);
         res.status(201).json(order.toObject());
     }

@@ -12,7 +12,7 @@ export class InvoiceController {
   async upload(req: Request, res: Response): Promise<void> {
     const input = UploadInvoiceSchema.parse({
       orderId: req.body.orderId,
-      sellerId: req.body.sellerId,
+      sellerId: req.user?.sub,
       file: req.file?.buffer,
       filename: req.file?.originalname,
     });
