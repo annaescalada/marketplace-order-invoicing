@@ -2,7 +2,7 @@ import express from "express";
 import mongoose from "mongoose";
 import { MongoOrderRepository } from "./infrastructure/db/MongoOrderRepository";
 import { MongoOutboxRepository } from "./infrastructure/db/MongoOutboxRepository";
-import { RabbitMQPublisher } from "./infrastructure/messaging/RabbitMQPublisher";
+import { RabbitMQOrderPublisher } from "./infrastructure/messaging/RabbitMQOrderPublisher";
 import { OutboxWorker } from "./infrastructure/messaging/OutboxWorker";
 import { CreateOrder } from "./application/use-cases/CreateOrder";
 import { GetOrder } from "./application/use-cases/GetOrder";
@@ -25,7 +25,7 @@ async function main() {
     const orderRepository = new MongoOrderRepository();
     const outboxRepository = new MongoOutboxRepository();
 
-    const publisher = new RabbitMQPublisher();
+    const publisher = new RabbitMQOrderPublisher();
     await publisher.connect(RABBITMQ_URL);
     console.log("Connected to RabbitMQ");
 

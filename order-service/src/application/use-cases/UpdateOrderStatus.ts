@@ -3,6 +3,7 @@ import { randomUUID } from "crypto";
 import { OrderStatus } from "../../domain/entities/Order";
 import { OrderRepository } from "../ports/OrderRepository";
 import { OutboxRepository } from "../ports/OutboxRepository";
+import { OrderEventType } from "../../domain/entities/OutboxEvent";
 
 export const UpdateOrderStatusSchema = z.object({
     orderId: z.string(),
@@ -30,8 +31,7 @@ export class UpdateOrderStatus {
             await this.outboxRepository.save({
                 id: randomUUID(),
                 aggregateId: orderId,
-                type: "order.shipped",
-                payload: { orderId },
+                type: OrderEventType.OrderShipped,
                 createdAt: new Date(),
                 publishedAt: null,
                 failedAt: null,

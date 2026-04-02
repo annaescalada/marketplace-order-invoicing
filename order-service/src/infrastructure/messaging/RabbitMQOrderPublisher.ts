@@ -1,10 +1,10 @@
+import { OrderEventType } from "../../domain/entities/OutboxEvent";
+
 const amqp = require("amqplib");
 
-const QUEUES = {
-    ORDER_SHIPPED: "order.shipped",
-} as const;
+const QUEUE_NAME = "order.events";
 
-export class RabbitMQPublisher {
+export class RabbitMQOrderPublisher {
     private connection: any = null;
     private channel: any = null;
 
@@ -13,15 +13,17 @@ export class RabbitMQPublisher {
         this.connection.on("error", (err: Error) => console.error("RabbitMQ connection error", err));
         this.channel = await this.connection.createChannel();
         this.channel.on("error", (err: Error) => console.error("RabbitMQ channel error", err));
+        await this.channel.assertQueue(QUEUE_NAME, { durable: true });
+
     }
 
-    async publish(queue: string, payload: object): Promise<void> {
+    publish(payload: {
+        type: OrderEventType;
+        orderId: string;
+        payload?: object;
+    }): void {
         if (!this.channel) throw new Error("RabbitMQ channel not initialized");
-        if (!Object.values(QUEUES).includes(queue as any)) {
-            throw new Error(`Unknown queue: ${queue}`);
-        }
-        await this.channel.assertQueue(queue, { durable: true });
-        this.channel.sendToQueue(queue, Buffer.from(JSON.stringify(payload)));
+        this.channel.sendToQueue(QUEUE_NAME, Buffer.from(JSON.stringify(payload)));
     }
 
     async close(): Promise<void> {
