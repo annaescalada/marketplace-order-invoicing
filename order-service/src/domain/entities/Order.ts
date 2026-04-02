@@ -1,3 +1,5 @@
+import { AppError } from "../errors";
+
 export enum OrderStatus {
     Created = "Created",
     Accepted = "Accepted",
@@ -40,7 +42,7 @@ export class Order {
 
     transitionTo(newStatus: OrderStatus): void {
         if (!VALID_TRANSITIONS[this._status].includes(newStatus)) {
-            throw new Error(`Invalid transition: ${this._status} → ${newStatus}`);
+            throw new AppError(`Invalid transition: ${this._status} → ${newStatus}`, 422);
         }
         this._status = newStatus;
         this._updatedAt = new Date();

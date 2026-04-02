@@ -142,7 +142,7 @@ All order domain events go to `order.events` with a `type` field. The consumer d
 If `markAsPublished` fails after a successful RabbitMQ publish, the worker may publish the same event twice. The Invoice Service consumer is idempotent (marking an already-sent invoice as sent again has no effect).
 
 ### Monorepo structure
-Both services live in the same repository but are fully independent (separate `package.json`, `node_modules`, `Dockerfile`, and test suite). No shared code between services. Duplications like `OrderEventType` or auth middleware are intentional — in a larger project with more shared contracts we would introduce npm workspaces with a `shared` package.
+Both services live in the same repository but are fully independent (separate `package.json`, `node_modules`, `Dockerfile`, and test suite). No shared code between services. Duplications like `OrderEventType`, auth middleware, error handling are intentional — in a larger project with more shared contracts we would introduce npm workspaces with a `shared` package.
 
 ## Production Considerations
 

@@ -1,5 +1,7 @@
-import express from "express";
+import express, { NextFunction, Request, Response } from "express";
 import mongoose from "mongoose";
+import { ZodError } from "zod";
+import { AppError } from "./domain/errors";
 import { MongoOrderRepository } from "./infrastructure/db/MongoOrderRepository";
 import { MongoOutboxRepository } from "./infrastructure/db/MongoOutboxRepository";
 import { RabbitMQOrderPublisher } from "./infrastructure/messaging/RabbitMQOrderPublisher";
@@ -41,6 +43,19 @@ async function main() {
     app.use("/orders", createOrderRouter(controller));
 
     app.get("/health", (_, res) => res.json({ status: "ok" }));
+
+    app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
+        if (err instanceof AppError) {
+            res.status(err.statusCode).json({ error: { message: err.message } });
+            return;
+        }
+        if (err instanceof ZodError) {
+            res.status(400).json({ error: { message: "Validation error", details: err.issues } });
+            return;
+        }
+        console.error(err);
+        res.status(500).json({ error: { message: "Internal server error" } });
+    });
 
     app.listen(PORT, () => console.log(`Order service running on port ${PORT}`));
 

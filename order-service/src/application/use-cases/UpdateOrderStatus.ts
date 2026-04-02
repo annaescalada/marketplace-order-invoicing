@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { AppError } from "../../domain/errors";
 import { randomUUID } from "crypto";
 import { OrderStatus } from "../../domain/entities/Order";
 import { OrderRepository } from "../ports/OrderRepository";
@@ -21,7 +22,7 @@ export class UpdateOrderStatus {
     async execute(input: UpdateOrderStatusDto) {
         const { orderId, status: newStatus } = input;
         const order = await this.orderRepository.findById(orderId);
-        if (!order) throw new Error("Order not found");
+        if (!order) throw new AppError("Order not found", 404);
 
         order.transitionTo(newStatus);
 
