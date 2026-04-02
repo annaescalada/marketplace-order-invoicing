@@ -17,7 +17,11 @@ export class RabbitMQOrderConsumer {
     private channel: any = null;
 
     async connect(url: string): Promise<void> {
-        this.connection = await amqp.connect(url);
+        this.connection = await amqp.connect(url, {
+            clientProperties: {
+                connection_name: "invoice-service",
+            }
+        });
         this.connection.on("error", (err: Error) => console.error("RabbitMQ connection error", err));
         this.channel = await this.connection.createChannel();
         this.channel.on("error", (err: Error) => console.error("RabbitMQ channel error", err));
