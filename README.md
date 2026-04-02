@@ -176,5 +176,8 @@ If a seller uploads an invoice after the order is already in `Shipped` status, `
 ### Failed event handling
 Currently the Invoice Service consumer `nack`s failed messages immediately with `requeue: false`. In production, two layers of resilience would be added: consumer-level retry logic, requeue with backoff up to N times before routing to a Dead Letter Exchange; and a reconciliation job that periodically cross-references outbox events with `publishedAt` set against invoices with `sentAt` null — re-publishing the event to RabbitMQ.
 
+### Health checks
+Both `/health` endpoints currently return `{ status: "ok" }` unconditionally. In production they should verify MongoDB and RabbitMQ connectivity before responding — otherwise load balancers and orchestrators like Kubernetes cannot detect a degraded service and will continue routing traffic to it.
+
 ### CI/CD
 CI runs lint and tests on every push via GitHub Actions. CD would push Docker images to ECR and deploy to ECS or Kubernetes, with a staging → production promotion flow.
