@@ -1,0 +1,40 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  test-order-service:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Install dependencies
+        run: cd order-service && npm ci
+
+      - name: Type check
+        run: cd order-service && npx tsc --noEmit
+
+      - name: Run tests
+        run: cd order-service && npm test
+
+  test-invoice-service:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Install dependencies
+        run: cd invoice-service && npm ci
+
+      - name: Type check
+        run: cd invoice-service && npx tsc --noEmit
+
+      - name: Run tests
+        run: cd invoice-service && npm test
