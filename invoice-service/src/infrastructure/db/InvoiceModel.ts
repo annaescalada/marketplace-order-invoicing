@@ -14,4 +14,6 @@ const InvoiceSchema = new Schema<InvoiceDocument>(
   { timestamps: true }
 );
 
+InvoiceSchema.index({ sellerId: 1 });
+
 export const InvoiceModel = mongoose.model<InvoiceDocument>("Invoice", InvoiceSchema);

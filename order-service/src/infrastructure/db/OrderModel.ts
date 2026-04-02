@@ -16,4 +16,7 @@ const OrderSchema = new Schema<OrderDocument>(
   { timestamps: true }
 );
 
+OrderSchema.index({ sellerId: 1 });
+OrderSchema.index({ customerId: 1 });
+
 export const OrderModel = mongoose.model<OrderDocument>("Order", OrderSchema);
