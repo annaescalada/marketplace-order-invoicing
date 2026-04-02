@@ -26,7 +26,6 @@ export class UpdateOrderStatus {
         order.transitionTo(newStatus);
 
         if (order.status === OrderStatus.Shipped) {
-            // TODO: atomic session
             await this.orderRepository.update(order);
             await this.outboxRepository.save({
                 id: randomUUID(),
