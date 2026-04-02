@@ -143,6 +143,9 @@ Both services live in the same repository but are fully independent (separate `p
 ### Outbox worker
 Currently runs inside the Order Service process. In production it would run as a separate process or Lambda for independent scaling.
 
+### Failed outbox events
+The outbox worker retries failed events up to 3 times. After that, `failedAt` is set and the event is no longer retried. In production, replace fixed retries with exponential backoff and route failed events to a dead letter queue for manual inspection or reprocessing.
+
 ### Atomic transactions
 The outbox pattern requires atomicity between the order update and the outbox event save. This requires MongoDB in replica set mode. Currently not enabled locally so the two operations are sequential. In production, wrap both in a MongoDB session transaction.
 
@@ -155,8 +158,14 @@ PDFs are currently saved to local disk. In production, upload to S3 or GCS and s
 ### Auth service
 In production, token issuance would be a dedicated Auth Service or delegated to an identity provider. Each microservice verifies tokens using the shared secret or public key.
 
+### Pagination
+`GET /orders` currently returns all orders with no limit. In production, add cursor-based or offset pagination to avoid loading unbounded result sets as the order volume grows.
+
 ### Cross-service validation
 The Invoice Service does not verify that the `orderId` exists in the Order Service before creating an invoice. In production this would be validated either via a synchronous API call or by consuming an `order.created` event.
+
+### Invoice uploaded after order is shipped
+If a seller uploads an invoice after the order is already in `Shipped` status, `sentAt` will never be set — the `order.shipped` event was already consumed. In production, `UploadInvoice` would check the current order status and mark the invoice as sent immediately if the order is already shipped.
 
 ### CI/CD
 CI runs lint and tests on every push via GitHub Actions. CD would push Docker images to ECR and deploy to ECS or Kubernetes, with a staging → production promotion flow.
