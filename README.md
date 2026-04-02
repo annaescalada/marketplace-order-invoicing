@@ -173,5 +173,8 @@ The Invoice Service does not verify that the `orderId` exists in the Order Servi
 ### Invoice uploaded after order is shipped
 If a seller uploads an invoice after the order is already in `Shipped` status, `sentAt` will never be set — the `order.shipped` event was already consumed. In production, `UploadInvoice` would check the current order status and mark the invoice as sent immediately if the order is already shipped.
 
+### Failed event handling
+Currently the Invoice Service consumer `nack`s failed messages immediately with `requeue: false`. In production, two layers of resilience would be added: consumer-level retry logic, requeue with backoff up to N times before routing to a Dead Letter Exchange; and a reconciliation job that periodically cross-references outbox events with `publishedAt` set against invoices with `sentAt` null — re-publishing the event to RabbitMQ.
+
 ### CI/CD
 CI runs lint and tests on every push via GitHub Actions. CD would push Docker images to ECR and deploy to ECS or Kubernetes, with a staging → production promotion flow.
