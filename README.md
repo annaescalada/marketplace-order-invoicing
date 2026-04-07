@@ -66,19 +66,6 @@ Handles PDF invoice uploads and tracks delivery.
 | POST   | /invoices          | seller | Upload PDF invoice |
 | GET    | /invoices/:orderId | seller | Get invoice        |
 
-## Event Flow
-
-When an order reaches `Shipped` status:
-
-```
-1. Order updated to Shipped
-2. Outbox event saved (same DB operation — atomic)
-3. Worker polls outbox every 5s → publishes to RabbitMQ order.events
-4. Invoice Service consumer receives event
-5. If invoice exists → sentAt is set
-6. If no invoice yet → event is silently ignored
-```
-
 ## Auth
 
 Simulates an external identity provider (Auth0, Cognito). Each service only verifies JWTs — never issues them. Tokens carry `sub` (user ID) and `role`.
